@@ -510,7 +510,7 @@ QA Lab has dedicated CI lanes outside the main smart-scoped workflow. Agentic pa
 
 Release checks run Matrix and Telegram live transport lanes with the deterministic mock provider and mock-qualified models (`mock-openai/gpt-5.5` and `mock-openai/gpt-5.5-alt`) so the channel contract is isolated from live model latency and normal provider-plugin startup. The live transport gateway disables memory search because QA parity covers memory behavior separately; provider connectivity is covered by the separate live model, native provider, and Docker provider suites.
 
-Matrix uses `--profile fast` for scheduled and release gates, adding `--fail-fast` only when the checked-out CLI supports it. The CLI default and manual workflow input remain `all`; manual `matrix_profile=all` dispatch always shards full Matrix coverage into `transport`, `media`, `e2ee-smoke`, `e2ee-deep`, and `e2ee-cli` jobs.
+Scheduled and release Matrix gates use the canonical shared live adapter with the parity-proven release scenarios. Release checks for older reachable refs that predate the adapter fall back to the legacy `fast` profile. The CLI default and manual workflow input remain `all`; manual `matrix_profile=all` dispatch always shards full legacy Matrix coverage into `transport`, `media`, `e2ee-smoke`, `e2ee-deep`, and `e2ee-cli` jobs. Focused legacy profiles add `--fail-fast` only when the checked-out CLI supports it.
 
 `OpenClaw Release Checks` also runs the release-critical QA Lab lanes before release approval; its QA parity gate runs the candidate and baseline packs as parallel lane jobs, then downloads both artifacts into a small report job for the final parity comparison.
 

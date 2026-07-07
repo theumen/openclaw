@@ -15,11 +15,37 @@ For broader QA framework context, see [QA overview](/concepts/qa-e2e-automation)
 
 ## Quick start
 
+Run the canonical release profile through the shared live adapter:
+
+```bash
+pnpm openclaw qa suite \
+  --channel-driver live \
+  --channel matrix \
+  --provider-mode mock-openai \
+  --model mock-openai/gpt-5.5 \
+  --alt-model mock-openai/gpt-5.5-alt \
+  --fast
+```
+
+This is the Matrix lane used by release validation. It runs the six
+parity-proven canonical YAML scenarios declared by the Matrix live adapter:
+channel baseline, thread follow-up/isolation, reply override, and shared versus
+per-room DM sessions.
+
+Use the Matrix-specific runner for the exhaustive transport, media, and E2EE
+inventory:
+
 ```bash
 pnpm openclaw qa matrix --profile fast --fail-fast
 ```
 
 Plain `pnpm openclaw qa matrix` runs `--profile all` and does not stop on first failure. Shard the full inventory across parallel jobs with `--profile transport|media|e2ee-smoke|e2ee-deep|e2ee-cli`.
+
+The `release` workflow profile is not a `qa matrix` profile. It selects the
+canonical shared-adapter command above. Release checks for older reachable refs
+that predate the live adapter fall back to the legacy `fast` profile. Manual
+`matrix_profile=all` workflow runs continue to shard the Matrix-specific
+inventory.
 
 ## What the lane does
 
@@ -110,7 +136,7 @@ Pass `--scenario <id>` (repeatable) to run a hand-picked set; combine with `--pr
 | Variable                                | Default                                   | Effect                                                                                                                                                                                         |
 | --------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `OPENCLAW_QA_MATRIX_TIMEOUT_MS`         | `1800000` (30 min)                        | Hard upper bound on the entire run.                                                                                                                                                            |
-| `OPENCLAW_QA_MATRIX_CANARY_TIMEOUT_MS`  | `45000`                                   | Bound for the initial canary reply. Release CI raises this on shared runners so a slow first gateway turn does not fail before scenario coverage starts.                                       |
+| `OPENCLAW_QA_MATRIX_CANARY_TIMEOUT_MS`  | `45000`                                   | Bound for the initial canary reply in the Matrix-specific runner. The canonical shared-adapter release profile does not use this legacy canary phase.                                          |
 | `OPENCLAW_QA_MATRIX_NO_REPLY_WINDOW_MS` | `8000`                                    | Quiet window for negative no-reply assertions. Clamped to `<=` the run timeout.                                                                                                                |
 | `OPENCLAW_QA_MATRIX_CLEANUP_TIMEOUT_MS` | `90000`                                   | Bound for Docker teardown. Failure surfaces include the recovery `docker compose ... down --remove-orphans` command.                                                                           |
 | `OPENCLAW_QA_MATRIX_TUWUNEL_IMAGE`      | `ghcr.io/matrix-construct/tuwunel:v1.5.1` | Override the homeserver image when validating against a different Tuwunel version.                                                                                                             |

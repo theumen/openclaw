@@ -166,8 +166,23 @@ tokens, or local paths.
 
 ### Matrix smoke lanes
 
-For a transport-real Matrix smoke lane that does not require model-provider
-credentials, run the fast profile with the deterministic mock OpenAI provider:
+Release validation runs the parity-proven canonical Matrix flows through the
+shared live adapter:
+
+```bash
+pnpm openclaw qa suite \
+  --channel-driver live \
+  --channel matrix \
+  --provider-mode mock-openai \
+  --model mock-openai/gpt-5.5 \
+  --alt-model mock-openai/gpt-5.5-alt \
+  --fast
+```
+
+Use the Matrix-specific runner when validating the exhaustive transport,
+media, and E2EE inventory. For a transport-real smoke lane that does not
+require model-provider credentials, run its fast profile with the deterministic
+mock OpenAI provider:
 
 ```bash
 OPENCLAW_QA_MATRIX_NO_REPLY_WINDOW_MS=3000 \
@@ -200,12 +215,13 @@ E2EE CLI profile also drives `openclaw matrix encryption setup` and
 verification commands through the same disposable homeserver before checking
 gateway replies.
 
-CI uses the same command surface in
-`.github/workflows/qa-live-transports-convex.yml`. Scheduled and default
-manual runs execute the fast Matrix profile with QA-provided live-frontier
-credentials, `--fast`, and `OPENCLAW_QA_MATRIX_NO_REPLY_WINDOW_MS=3000`.
-Manual `matrix_profile=all` fans out into five profile shards: `transport`,
-`media`, `e2ee-smoke`, `e2ee-deep`, and `e2ee-cli`.
+CI uses both command surfaces in
+`.github/workflows/qa-live-transports-convex.yml`. Scheduled and release runs
+execute the canonical shared-adapter release scenarios. Manual
+`matrix_profile=all` fans out the Matrix-specific runner into five profile
+shards: `transport`, `media`, `e2ee-smoke`, `e2ee-deep`, and `e2ee-cli`.
+Focused manual legacy profiles use QA-provided live-frontier credentials,
+`--fast`, and `OPENCLAW_QA_MATRIX_NO_REPLY_WINDOW_MS=3000`.
 
 ### Discord Mantis scenarios
 
