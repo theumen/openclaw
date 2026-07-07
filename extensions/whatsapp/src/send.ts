@@ -225,6 +225,7 @@ export async function sendMessageWhatsApp(
     outboundLog.info(`Sending message -> ${redactedJid}${hasMedia ? " (media)" : ""}`);
     logger.info({ jid: redactedJid, hasMedia }, "sending message");
     if (!isWhatsAppNewsletterJid(jid)) {
+      await active.assertSendReady?.(to);
       await active.sendComposingTo(to);
     }
     const hasExplicitAccountId = Boolean(options.accountId?.trim());
